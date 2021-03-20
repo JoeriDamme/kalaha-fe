@@ -47,6 +47,10 @@ export default {
 </script>
 
 <style>
+html {
+  background: darkgray;
+}
+
 .start {
   position: relative;
   height: 100vh;
