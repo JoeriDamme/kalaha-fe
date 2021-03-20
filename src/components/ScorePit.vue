@@ -1,12 +1,14 @@
 <template>
   <div class="score-pit">
-    score pit
+    {{ score }}
   </div>
 </template>
 
 <script>
 export default {
-  
+  props: {
+    score: Number,
+  }
 }
 </script>
 
