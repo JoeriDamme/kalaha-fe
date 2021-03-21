@@ -49,15 +49,15 @@ export default {
   data() {
     return {
       game: {
-        playerIdTurn: 1,
+        playerIdTurn: 0,
         players: [{
           name: 'Player one',
           score: 0,
-          pits: [4, 4, 4, 4, 4, 4],
+          pits: [0, 0, 0, 0, 0, 1],
         }, {
           name: 'Player two',
           score: 0,
-          pits: [4, 2, 4, 0, 4, 4],
+          pits: [4, 4, 4, 4, 4, 4],
         }],
       }
     }
@@ -73,6 +73,21 @@ export default {
     getNextPlayer() {
       const player = this.game.players[this.getPlayerIdTurn];
       return player;
+    },
+    getPlayerMostPoints() {
+      let leadingPlayer;
+      let total = -1;
+
+      // loop over each player, check if score is higher than earlier player.
+      this.game.players.forEach(player => {
+        const score = player.score;
+        if (score > total) {
+          total = score;
+          leadingPlayer = player;
+        }
+      });
+
+      return leadingPlayer;
     },
   },
   methods: {
@@ -91,18 +106,24 @@ export default {
       player.pits[pitId] = stones;
     },
     doMove(playerId, pitId) {
+      // 1. get stones in selected pit to pick up.
       const pits = this.getPlayerById(playerId).pits;
       const stones = pits[pitId];
 
-      // if no stones, don't move
+      // 1a. if no stones, don't move
       if (!stones) {
         return;
       }
 
-      // clear selected pit 
+      // 2. clear selected pit.
       this.setStonesForPitByPlayerId(playerId, pitId, 0);
 
+      // 3. start dropping stones.
       this.dropStone(playerId, pitId, stones, playerId);
+
+      // 4. after finishing dropping stones, check if game is over
+      this.handleGameEnding();
+
     },
     dropStone(playerId, pitId, stones, playerIdTurn) {
       // variable to keep track of the current player has a new turn.
@@ -112,7 +133,6 @@ export default {
   
       // 1. get pitId next pit. if false, a score pit has been reached!
       const nextPitId = this.getNextPit(playerId, pitId);
-      
 
       // 2. if next pit is a score pit, check if it is the score pit of the current player.
       if (nextPitId === false) {
@@ -142,22 +162,21 @@ export default {
         }
       }
 
-      // 4. Does the current have a new turn or not? If not, Set next player.
-      if (!newTurn) {
-        this.setNextPlayer();
-      }
-
-      // 5. Does the current player get the stones across?
+      // 4. Does the current player get the stones across?
       if (getStonesAcross) {
         this.handleStonesAcross(playerIdTurn, nextPitId);
       }
 
-      // 6. Any stones left in hand? If no, stop the recursion
+      // 5. Any stones left in hand? If no, stop the recursion
       if (!stones) {
+        // 5a. Does the current have a new turn or not? If not, Set next player.
+        if (!newTurn) {
+          this.setNextPlayer();
+        }
         return;
       }
 
-      // 7. we still have stones in our hands. Continue with next drop.
+      // 6. we still have stones in our hands. Continue with next drop.
       this.dropStone(playerId, nextPitId, stones, playerIdTurn);
     },
     getNextPit(playerId, pitId) {
@@ -201,6 +220,44 @@ export default {
       player.score = player.score + stonesAcross;
       // 5. set stones across to 0.
       this.setStonesForPitByPlayerId(playerIdAcross, pitIdAcross, 0);
+    },
+    handleGameEnding() {
+      // 1. get player with no stones.
+      const playerIdNoStones = this.isCompleted();
+
+      // 2. if no player found, resume.
+      if (playerIdNoStones === false) {
+        return;
+      }
+
+      // 3. filter players that are remaining, so except with player with no stones.
+      const remainingPlayers = this.game.players.filter((player, index) => index !== playerIdNoStones ? true : false);
+
+      // 4. add stones to total score of player.
+      remainingPlayers.forEach(player => {
+        // 4a. get all pits.
+        const pits = player.pits;
+        // 4b. sum all stones.
+        const sum = pits.reduce((a, b) => a + b, 0);
+        // 4c. add to total player score.
+        player.score = player.score + sum;
+        // 4e. reset pits to 0
+        pits.fill(0); // praise ES6 for fill.
+      });
+
+      alert(`Winner is ${this.getPlayerMostPoints.name}`)
+    },
+    isCompleted() {
+      // the current logic is based in two players
+      // 1. get all player pits
+      const pits = this.game.players.map(player => player.pits);
+
+      // 2. find player with 0 stones in pit. if -1, no player found.
+      // TODO: basically doing reduce twice now, also in handleGameEnding. Fix?
+      const playerIdWithNoStones = pits.findIndex(pit => !pit.reduce((a, b) => a + b, 0));
+
+      // 3. return false if no player found, otherwise playerId
+      return playerIdWithNoStones === -1 ? false : playerIdWithNoStones;
     }
   }
 }
