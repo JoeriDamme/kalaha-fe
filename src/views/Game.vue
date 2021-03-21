@@ -1,8 +1,10 @@
 <template>
-  <div class="game align-self-center row mt-5 pb-2">
+  <div class="row">
     <div class="col-12">
-      It's your turn now, {{ getNextPlayer.name }}
+      <GameMessage :message="getMessage" />
     </div>
+  </div>
+  <div class="game align-self-center row mt-1 pb-2 pt-2">
     <div class="col-1">
       <ScorePit :score="getScoreByPlayer(0)"  />
     </div>
@@ -44,6 +46,7 @@
 <script>
 import ScorePit from '../components/ScorePit';
 import Pit from '../components/Pit';
+import GameMessage from '../components/GameMessage'
 
 export default {
   data() {
@@ -65,8 +68,13 @@ export default {
   components: {
     ScorePit,
     Pit,
+    GameMessage,
   },
   computed: {
+    getMessage() {
+      const player = this.getPlayerById(this.getPlayerIdTurn);
+      return `It's your turn, ${player.name}!`;
+    },
     getPlayerIdTurn() {
       return this.game.playerIdTurn;
     },

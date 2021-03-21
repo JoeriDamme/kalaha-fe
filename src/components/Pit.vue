@@ -31,7 +31,7 @@ export default {
   },
   computed: {
     isPlayerTurn() {
-      return this.playerId !== this.playersTurn;
+      return this.playerId === this.playersTurn;
     }
   },
   emits: ['do-move'],
