@@ -1,6 +1,6 @@
 <template>
-  <div class="score-pit">
-    {{ score }}
+  <div class="score-pit d-flex justify-content-center align-items-center">
+    <span>{{ score }}</span>
   </div>
 </template>
 
@@ -14,6 +14,13 @@ export default {
 
 <style scoped>
 .score-pit {
-  border: 1px solid black;
+  background: url('../assets/pit-score.png');
+  background-size: cover;
+  height: 260px;
+}
+
+span {
+  color: white;
+  font-size: 2rem;
 }
 </style>

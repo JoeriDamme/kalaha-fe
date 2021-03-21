@@ -1,5 +1,5 @@
 <template>
-  <div class="game row">
+  <div class="game row mt-2">
     <div class="col-12">
       It's your turn now, {{ getNextPlayer.name }}
     </div>
@@ -21,7 +21,7 @@
         </div>
       </div>
 
-      <div class="row">
+      <div class="row mt-3">
         <div class="col-2" v-for="n in 6" v-bind:key="n">
           <Pit 
             :stones="getStonesForPitByPlayerId(1, n - 1)"
@@ -53,11 +53,11 @@ export default {
         players: [{
           name: 'Player one',
           score: 0,
-          pits: [0, 0, 0, 0, 0, 1],
+          pits: [6, 6, 6, 6, 6, 6],
         }, {
           name: 'Player two',
           score: 0,
-          pits: [4, 4, 4, 4, 4, 4],
+          pits: [6, 6, 6, 6, 6, 6],
         }],
       }
     }
@@ -264,5 +264,9 @@ export default {
 </script>
 
 <style scoped>
-
+.game {
+  background: url('../assets/wood.jpg') no-repeat center center fixed;
+  background-size: cover;
+  height: 300px;
+}
 </style>
