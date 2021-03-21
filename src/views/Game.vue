@@ -1,5 +1,5 @@
 <template>
-  <div class="game row mt-2">
+  <div class="game align-self-center row mt-5 pb-2">
     <div class="col-12">
       It's your turn now, {{ getNextPlayer.name }}
     </div>
@@ -263,10 +263,15 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+body { 
+  background: url('../assets/kalaha-bg-2.png') no-repeat center center fixed; 
+  background-size: cover;
+}
+
 .game {
   background: url('../assets/wood.jpg') no-repeat center center fixed;
   background-size: cover;
-  height: 300px;
+  border-radius: 0.5rem;
 }
 </style>
