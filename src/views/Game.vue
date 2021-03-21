@@ -49,17 +49,15 @@ export default {
   data() {
     return {
       game: {
-        playerIdTurn: 0,
+        playerIdTurn: 1,
         players: [{
           name: 'Player one',
           score: 0,
-          turn: false,
-          pits: [6, 6, 6, 6, 6, 6],
+          pits: [4, 4, 4, 4, 4, 4],
         }, {
           name: 'Player two',
           score: 0,
-          turn: true,
-          pits: [6, 6, 6, 6, 6, 10],
+          pits: [4, 2, 4, 0, 4, 4],
         }],
       }
     }
@@ -94,41 +92,79 @@ export default {
     },
     doMove(playerId, pitId) {
       const pits = this.getPlayerById(playerId).pits;
-      const stones = pits[pitId]
+      const stones = pits[pitId];
+
+      // if no stones, don't move
+      if (!stones) {
+        return;
+      }
 
       // clear selected pit 
       this.setStonesForPitByPlayerId(playerId, pitId, 0);
 
       this.dropStone(playerId, pitId, stones, playerId);
-
-      this.setNextPlayer();
     },
     dropStone(playerId, pitId, stones, playerIdTurn) {
-      // if stones is 0, stop
+      // variable to keep track of the current player has a new turn.
+      let newTurn = false;
+      // variable to keep track if the current player ended (stones in hand === 0) on empty pit on his side.
+      let getStonesAcross = false;
+  
+      // 1: get pitId next pit. if false, a score pit has been reached!
+      const nextPitId = this.getNextPit(playerId, pitId);
+      
+
+      // 2: if next pit is a score pit, check if it is the score pit of the current player.
+      if (nextPitId === false) {
+        if (playerId === playerIdTurn) {
+          // 2.A: next pit is a score pit of the player's turn! Update score.
+          const player = this.getPlayerById(playerId);
+          player.score++;
+          --stones;
+
+          // 2.B: if last stone and ended at players turn score pit, go another turn.
+          if (!stones) {
+            newTurn = true;
+          }
+        }
+
+        // 2.C: get next player on board for dropping the stones, because we ended at score pit.
+        playerId = this.getNextPlayerOnBoard(playerId);
+      } else {
+        // 3: if not a score pit, just drop a stone in the next pit.
+        const currentStones = this.getStonesForPitByPlayerId(playerId, nextPitId);
+        this.setStonesForPitByPlayerId(playerId, nextPitId, currentStones + 1);
+        --stones;
+
+        // 3.A: if no more stones and current player ended at own empty pit, get stones from pit across and add to score.
+        if (!stones && !currentStones && playerId === playerIdTurn) {
+          getStonesAcross = true;
+        }
+      }
+
+
+      // 4: Does the current have a new turn or not? If not, Set next player.
+      if (!newTurn) {
+        this.setNextPlayer();
+      }
+
+      // 5: Does the current player get the stones across?
+      if (getStonesAcross) {
+        console.log('get stones across!!!');
+        const { playerIdAcross, pitIdAcross } = this.getPitIdAcross(playerIdTurn, nextPitId);
+        const stonesAcross = this.getStonesForPitByPlayerId(playerIdAcross, pitIdAcross);
+        const player = this.getPlayerById(playerId);
+        player.score = player.score + stonesAcross;
+        this.setStonesForPitByPlayerId(playerIdAcross, pitIdAcross, 0);
+
+      }
+
+      // 6: Any stones left in hand? If no, stop the recursion
       if (!stones) {
         return;
       }
 
-      // get pitId next pit. if false, a score pit has been reached!
-      const nextPitId = this.getNextPit(playerId, pitId);
-
-      if (nextPitId === false) {
-        if (playerId === playerIdTurn) {
-          // next pit is a score pit of the player's turn! Update score.
-          const player = this.getPlayerById(playerId);
-          player.score++;
-          --stones; // dropped one stone
-        }
-
-        // get next player on board
-        playerId = this.getNextPlayerOnBoard(playerId);
-      } else {
-        // drop stone in pit
-        const currentStones = this.getStonesForPitByPlayerId(playerId, nextPitId)
-        this.setStonesForPitByPlayerId(playerId, nextPitId, currentStones + 1);
-        --stones; // dropped one stone
-      }
-
+      // 7: we still have stones in our hands. Continue with next drop.
       this.dropStone(playerId, nextPitId, stones, playerIdTurn);
     },
     getNextPit(playerId, pitId) {
@@ -145,6 +181,22 @@ export default {
       const index = typeof players[this.getPlayerIdTurn + 1] === 'undefined' ? 0 : this.getPlayerIdTurn + 1;
       this.game.playerIdTurn = index;
     },
+    getPitIdAcross(playerId, pitId) {
+      // the logic is currently only for two players
+      // get player across
+      const playerIdAcross = this.getNextPlayerOnBoard(playerId);
+
+      // get pitId across
+      // 1. how many pits? The minus 1 is because we start counting at 0.
+      const pitLength = this.game.players[playerId].pits.length - 1;
+      // 2. get pitId across by total length minus current pitId. Remember we see reversed order as player.
+      const pitIdAcross = pitLength - pitId;
+      
+      return {
+        playerIdAcross,
+        pitIdAcross,
+      }
+    }
   }
 }
 </script>
