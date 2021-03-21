@@ -110,61 +110,54 @@ export default {
       // variable to keep track if the current player ended (stones in hand === 0) on empty pit on his side.
       let getStonesAcross = false;
   
-      // 1: get pitId next pit. if false, a score pit has been reached!
+      // 1. get pitId next pit. if false, a score pit has been reached!
       const nextPitId = this.getNextPit(playerId, pitId);
       
 
-      // 2: if next pit is a score pit, check if it is the score pit of the current player.
+      // 2. if next pit is a score pit, check if it is the score pit of the current player.
       if (nextPitId === false) {
         if (playerId === playerIdTurn) {
-          // 2.A: next pit is a score pit of the player's turn! Update score.
+          // 2a. next pit is a score pit of the player's turn! Update score.
           const player = this.getPlayerById(playerId);
           player.score++;
           --stones;
 
-          // 2.B: if last stone and ended at players turn score pit, go another turn.
+          // 2b. if last stone and ended at players turn score pit, go another turn.
           if (!stones) {
             newTurn = true;
           }
         }
 
-        // 2.C: get next player on board for dropping the stones, because we ended at score pit.
+        // 2c. get next player on board for dropping the stones, because we ended at score pit.
         playerId = this.getNextPlayerOnBoard(playerId);
       } else {
-        // 3: if not a score pit, just drop a stone in the next pit.
+        // 3. if not a score pit, just drop a stone in the next pit.
         const currentStones = this.getStonesForPitByPlayerId(playerId, nextPitId);
         this.setStonesForPitByPlayerId(playerId, nextPitId, currentStones + 1);
         --stones;
 
-        // 3.A: if no more stones and current player ended at own empty pit, get stones from pit across and add to score.
+        // 3a. if no more stones and current player ended at own empty pit, get stones from pit across and add to score.
         if (!stones && !currentStones && playerId === playerIdTurn) {
           getStonesAcross = true;
         }
       }
 
-
-      // 4: Does the current have a new turn or not? If not, Set next player.
+      // 4. Does the current have a new turn or not? If not, Set next player.
       if (!newTurn) {
         this.setNextPlayer();
       }
 
-      // 5: Does the current player get the stones across?
+      // 5. Does the current player get the stones across?
       if (getStonesAcross) {
-        console.log('get stones across!!!');
-        const { playerIdAcross, pitIdAcross } = this.getPitIdAcross(playerIdTurn, nextPitId);
-        const stonesAcross = this.getStonesForPitByPlayerId(playerIdAcross, pitIdAcross);
-        const player = this.getPlayerById(playerId);
-        player.score = player.score + stonesAcross;
-        this.setStonesForPitByPlayerId(playerIdAcross, pitIdAcross, 0);
-
+        this.handleStonesAcross(playerIdTurn, nextPitId);
       }
 
-      // 6: Any stones left in hand? If no, stop the recursion
+      // 6. Any stones left in hand? If no, stop the recursion
       if (!stones) {
         return;
       }
 
-      // 7: we still have stones in our hands. Continue with next drop.
+      // 7. we still have stones in our hands. Continue with next drop.
       this.dropStone(playerId, nextPitId, stones, playerIdTurn);
     },
     getNextPit(playerId, pitId) {
@@ -196,6 +189,18 @@ export default {
         playerIdAcross,
         pitIdAcross,
       }
+    },
+    handleStonesAcross(playerId, pitId) {
+      // 1. get pitId across.
+      const { playerIdAcross, pitIdAcross } = this.getPitIdAcross(playerId, pitId);
+      // 2. get number of stones across.
+      const stonesAcross = this.getStonesForPitByPlayerId(playerIdAcross, pitIdAcross);
+      // 3. get player.
+      const player = this.getPlayerById(playerId);
+      // 4. update player score.
+      player.score = player.score + stonesAcross;
+      // 5. set stones across to 0.
+      this.setStonesForPitByPlayerId(playerIdAcross, pitIdAcross, 0);
     }
   }
 }
