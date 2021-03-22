@@ -126,7 +126,7 @@ export default {
       const player = this.getPlayerById(playerId);
       player.pits[pitId] = stones;
     },
-    doMove(playerId, pitId) {
+    async doMove(playerId, pitId) {
       // 1. get stones in selected pit to pick up.
       const pits = this.getPlayerById(playerId).pits;
       const stones = pits[pitId];
@@ -141,6 +141,9 @@ export default {
 
       // 3. start dropping stones.
       this.dropStone(playerId, pitId, stones, playerId);
+
+      // 4. saving game
+      this.patchGame();
 
       // 4. after finishing dropping stones, check if game is over
       this.handleGameEnding();
@@ -279,6 +282,20 @@ export default {
 
       // 3. return false if no player found, otherwise playerId
       return playerIdWithNoStones === -1 ? false : playerIdWithNoStones;
+    },
+    async patchGame() {
+      /**
+       * I know this is not the way to do it, because we can just manufacture a PATCH call
+       * with your own settings.
+       * But now for a MVP it's fine.
+       */
+      try {
+        await this.$http.patch(`/games/${this.$route.query.id}`, this.game);
+      } catch (error) {
+        this.errorMessage = error.message;
+      } finally {
+        this.loading = false;
+      }
     }
   }
 }
