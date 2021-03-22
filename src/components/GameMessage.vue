@@ -1,5 +1,5 @@
 <template>
-  <span class="text-center">{{ message }}</span>  
+  <span class="game-message text-center">{{ message }}</span>  
 </template>
 
 <script>
