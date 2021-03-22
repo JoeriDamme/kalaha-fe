@@ -1,36 +1,18 @@
 <template>
   <div class="container landing">
     <VideoBackground />
-    
     <div class="row p-3 start">
       <div class="col-12">
         <img class="logo" src="../assets/logo-small.png" />
       </div>
-      <div class="col-md-5 col-12 shadow-lg rounded bg-light p-3  start-new-game-form">
+      <div class="col-md-5 col-12 shadow-lg rounded bg-light p-3">
         <h4 class="text-info">Start a new game...</h4>
-        <form>
-          <div class="form-group">
-            <input type="text" class="form-control" placeholder="Player one" value="" />
-          </div>
-          <div class="form-group">
-            <input type="text" class="form-control" placeholder="Player two" value="" />
-          </div>
-          <div class="form-group">
-            <input type="submit" class="btn btn-info" value="Start" />
-          </div>
-        </form>
+        <NewGameForm />
       </div>
       <div class="col-md-2 col-12"></div>
-      <div class="col-md-5 col-12 shadow-lg rounded p-3 bg-info continue-game-form">
+      <div class="col-md-5 col-12 shadow-lg rounded p-3 bg-info">
         <h4 class="text-light">...or continue a game</h4>
-        <form>
-          <div class="form-group">
-            <input type="text" class="form-control" placeholder="Game Id: ABCDEF" value="" />
-          </div>
-          <div class="form-group">
-            <input type="submit" class="btn btn-light" value="Continue" />
-          </div>
-        </form>
+        <ResumeGameForm />
       </div>
     </div>
   </div>
@@ -38,10 +20,15 @@
 
 <script>
 import VideoBackground from '../components/VideoBackground.vue';
+import NewGameForm from '../components/NewGameForm.vue';
+import ResumeGameForm from '../components/ResumeGameForm.vue';
+
 export default {
   name: 'App',
   components: {
-    VideoBackground
+    VideoBackground,
+    NewGameForm,
+    ResumeGameForm,
   }
 }
 </script>

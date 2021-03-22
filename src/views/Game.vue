@@ -8,9 +8,7 @@
     <div class="col-1">
       <ScorePit :score="getScoreByPlayer(0)"  />
     </div>
-
     <div class="col-10">
-
       <div class="row">
         <div class="col-2" v-for="n in 6" v-bind:key="n">
           <Pit
@@ -41,6 +39,11 @@
     </div>
 
   </div>
+  <div class="row">
+    <div class="col-12 game-stats">
+      <span>If you want to continue, please save the following id: {{ game._id }} </span>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -69,6 +72,16 @@ export default {
     ScorePit,
     Pit,
     GameMessage,
+  },
+  async mounted() {
+    try {
+      const result = await this.$http.get(`/games/${this.$route.query.id}`);
+      this.game = result.data;
+    } catch (error) {
+      this.errorMessage = error.message;
+    } finally {
+      this.loading = false;
+    }
   },
   computed: {
     getMessage() {
@@ -281,5 +294,11 @@ body {
   background: url('../assets/wood.jpg') no-repeat center center fixed;
   background-size: cover;
   border-radius: 0.5rem;
+}
+
+.game-stats span {
+  color: lightgrey;
+  font-weight: 100;
+  font-size: 0.8rem;
 }
 </style>
