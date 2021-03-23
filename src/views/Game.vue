@@ -1,6 +1,7 @@
 <template>
   <div class="row">
-    <div class="col-12">
+    <div class="col-12 text-center">
+      <img class="logo text-center mb-3" src="../assets/logo-small.png" />
       <GameMessage :message="getMessage" />
     </div>
   </div>
@@ -204,22 +205,33 @@ export default {
       this.dropStone(playerId, nextPitId, stones, playerIdTurn);
     },
     getNextPit(playerId, pitId) {
+      /**
+       * Will return the index of the next pit of a player.
+       * If there is no pit (so implicitly a score pit), the method will return false.
+       */
       const player = this.getPlayerById(playerId);
       const nextId = pitId !== false ? pitId + 1 : 0; // if pitId is false, it's a score pit.
       return typeof player.pits[nextId] === 'undefined' ? false : nextId;
     },
     getNextPlayerOnBoard(playerId) {
+      /**
+       * Return the index of the next player.
+       */
       const nextPlayerId = playerId + 1;
       return typeof this.game.players[nextPlayerId] === 'undefined' ? 0 : nextPlayerId;
     },
     setNextPlayer() {
-      const players = this.game.players;
-      const index = typeof players[this.getPlayerIdTurn + 1] === 'undefined' ? 0 : this.getPlayerIdTurn + 1;
-      this.game.playerIdTurn = index;
+      /**
+       * Set the next player in game.
+       */
+      const nextPlayerId = this.getNextPlayerOnBoard(this.game.playerIdTurn);
+      this.game.playerIdTurn = nextPlayerId;
     },
     getPitIdAcross(playerId, pitId) {
-      // the logic is currently only for two players
-      // get player across
+      /**
+       * Get the Pit index across.
+       * The logic only is working now for 2 players.
+       */
       const playerIdAcross = this.getNextPlayerOnBoard(playerId);
 
       // get pitId across
@@ -317,5 +329,9 @@ body {
   color: lightgrey;
   font-weight: 100;
   font-size: 0.8rem;
+}
+
+.logo {
+  width: 10rem;
 }
 </style>
